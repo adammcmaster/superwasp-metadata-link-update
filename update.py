@@ -1,4 +1,5 @@
 from panoptes_client import Panoptes, Project, Subject
+from panoptes_client.panoptes import PanoptesAPIException
 from progress.bar import ChargingBar
 
 import yaml
@@ -63,15 +64,21 @@ with open(PROCESSED_SUBJECTS_FILE, 'a') as processed_subjects_f:
                     simbad_url = 'http://simbad.u-strasbg.fr/simbad/sim-coo?Coord={}+{}&Radius=2&Radius.unit=arcmin&submit=submit+query'.format(ra, dec)
                     asassn_url = 'https://asas-sn.osu.edu/photometry?ra={}&dec={}&radius=2'.format(ra, dec)
 
-                    # Reload the subject to refresh the etag
-                    # This works around what seems to be a bug in the Panoptes client
-                    # https://github.com/zooniverse/panoptes-python-client/issues/220
-                    subject.reload()
-                    subject.metadata['!CERiT'] = cerit_url
-                    subject.metadata['!Simbad'] = simbad_url
-                    subject.metadata['!ASAS-SN Photometry'] = asassn_url
+                    for retry in (True, False):
+                        try:
+                            subject.metadata['!CERiT'] = cerit_url
+                            subject.metadata['!Simbad'] = simbad_url
+                            subject.metadata['!ASAS-SN Photometry'] = asassn_url
 
-                    subject.save()
+                            subject.save()
+                        except PanoptesAPIException:
+                            if retry:
+                                # Reload the subject to refresh the etag
+                                # This works around what seems to be a bug in the Panoptes client
+                                # https://github.com/zooniverse/panoptes-python-client/issues/220
+                                subject.reload()
+                            else:
+                                raise
 
                     processed_subjects.add(subject.id)
                     processed_subjects_f.write('{}\n'.format(subject.id))
