@@ -71,5 +71,5 @@ with open(PROCESSED_SUBJECTS_FILE, 'a') as processed_subjects_f:
                 processed_subjects_f.write('{}\n'.format(subject.id))
 
             print('')
-            processed_sets.add(subject.id)
+            processed_sets.add(subject_set.id)
             processed_sets_f.write('{}\n'.format(subject_set.id))
