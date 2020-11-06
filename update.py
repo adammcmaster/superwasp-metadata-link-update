@@ -1,4 +1,4 @@
-from panoptes_client import Panoptes, Project
+from panoptes_client import Panoptes, Project, Subject
 
 import yaml
 
@@ -34,7 +34,7 @@ with open(PROCESSED_SUBJECTS_FILE, 'a') as processed_subjects_f:
         for subject_set in project.links.subject_sets:
             if subject_set.id in processed_sets:
                 continue
-            for count, subject in enumerate(subject_set.subjects, start=1):
+            for count, subject in enumerate(Subject.where(subject_set_id=subject_set.id, page_size=100), start=1):
                 print('\rProcessing subject set {} ({} subjects)'.format(subject_set.display_name, count), end='')
                 if subject.id in processed_subjects:
                     continue
