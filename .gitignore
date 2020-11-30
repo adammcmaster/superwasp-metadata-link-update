@@ -109,3 +109,4 @@ venv.bak/
 config.yaml
 processed_subjects.txt
 processed_sets.txt
+subjects.txt
